@@ -31,6 +31,21 @@ public class FXMLDocumentController implements Initializable {
     private Button close;
 
     @FXML
+    private Button close_signup;
+
+    @FXML
+    private Hyperlink create_account;
+
+    @FXML
+    private TextField email_signup;
+
+    @FXML
+    private Hyperlink have_account;
+
+    @FXML
+    private AnchorPane login_form;
+
+    @FXML
     private Button loginbtn;
 
     @FXML
@@ -40,7 +55,20 @@ public class FXMLDocumentController implements Initializable {
     private PasswordField password;
 
     @FXML
+    private PasswordField password_signup;
+
+    @FXML
+    private AnchorPane signup_form;
+
+    @FXML
+    private Button signupbtn;
+
+    @FXML
     private TextField username;
+
+    @FXML
+    private TextField username_signup;
+
     
     private Connection conn;
     private PreparedStatement ps;
@@ -48,7 +76,7 @@ public class FXMLDocumentController implements Initializable {
             
 public void login() {
     String sql = "SELECT * FROM admin WHERE username = ? AND password = ?";
-    conn = DataBase.conDb();
+    conn = DataBase.ConDb();
     
     if (conn == null) {
         // If the connection fails, alert the user
@@ -90,7 +118,7 @@ public void login() {
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error Message");
                 alert.setHeaderText(null);
-                alert.setContentText("Wrong username or password");
+                alert.setContentText("Wrong  username or password ");
                 alert.showAndWait();
             }
         }
@@ -99,6 +127,72 @@ public void login() {
     }
 }
 
+public void signup() {
+        String sql = "insert into admin (email,username,password) values (?,?,?)";
+        conn = DataBase.ConDb();
+    
+    if (conn == null) {
+        // If the connection fails, alert the user
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error Message");
+        alert.setHeaderText(null);
+        alert.setContentText("Failed to connect to the database.");
+        alert.showAndWait();
+        return; // Exit the method
+    }
+
+        try {
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, email_signup.getText());
+            ps.setString(2, username_signup.getText());
+            ps.setString(3, password_signup.getText());
+
+            Alert alert;
+            if (email_signup.getText().isEmpty() || password_signup.getText().isEmpty() || username_signup.getText().isEmpty()) {
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Please fill all blank fields");
+                alert.showAndWait();
+            } else if (password_signup.getText().length() < 5) {
+
+                alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Invaild password");
+                alert.showAndWait();
+
+            } else {
+
+                ps.execute();
+                alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Information Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Successfully create a new account!");
+                alert.showAndWait();
+
+                email_signup.setText("");
+                username_signup.setText("");
+                password_signup.setText("");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+
+        }
+    }
+
+
+
+    public void switchForm(ActionEvent ev) {
+        if (ev.getSource() == create_account) {
+            login_form.setVisible(  false);
+            signup_form.setVisible(true);
+        } else if (ev.getSource() == have_account) {
+            login_form.setVisible(true);
+            signup_form.setVisible(false);
+        }
+    }
     
     public void close(){
         System.exit(0);
